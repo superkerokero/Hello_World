@@ -80,7 +80,7 @@ class Trapezoid(object):
                     dict_x[current_point[0]].add(num_core)
                     dict_y[current_point[1]].add(num_core)
                 else:
-                    num_core -= 1 #Exclucde the last out-of-border point.
+                    num_core -= 1 #Exclude the last out-of-border point.
                     print "Generated %d points" % num_core
                     self.total_point = num_core
                     break
@@ -88,4 +88,3 @@ class Trapezoid(object):
         print dict_x
         print dict_y
         return [dict_x, dict_y]
-
