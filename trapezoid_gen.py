@@ -37,7 +37,8 @@ class Trapezoid(object):
         border = ((point[1]-self.points[1][1]) <= self.slope* \
                   (point[0]-self.points[1][0]))
         return bottom and left and right and border
-    def _init_dict(self, start, end, interval):
+    @staticmethod
+    def _init_dict(start, end, interval):
         """Initialize dict with all keys ranging from start to end
            having initial value of 0."""
         idict = {}
@@ -86,7 +87,8 @@ class Trapezoid(object):
                     break
         print "Raw list generation completed."
         return [dict_x, dict_y]
-    def translate_sets(self, input_set):
+    @staticmethod
+    def _sets2core(input_set):
         "Translate coordinate-based set into core-based set."
         dict_core = {}
         for key in input_set[0]:
@@ -96,3 +98,17 @@ class Trapezoid(object):
             for core in input_set[1][key]:
                 dict_core[core].append(key)
         return dict_core
+    @staticmethod
+    def _core2sets(input_core):
+        "Translate core-based set into coordinate-based set."
+        dict_x = {}
+        dict_y = {}
+        #first create empty dicts with correct keys.
+        for key in input_core:
+            dict_x[input_core[key][0]] = set()
+            dict_y[input_core[key][1]] = set()
+        #then fill the dicts with correct values.
+        for key in input_core:
+            dict_x[input_core[key][0]].add(key)
+            dict_y[input_core[key][1]].add(key)
+        return [dict_x, dict_y]
