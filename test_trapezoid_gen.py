@@ -11,7 +11,7 @@ class TestModule(unittest.TestCase):
         "setup initial conditions for test."
         init_points = [[0.0, 0.0], [0.0, 2.0], [4.0, 4.0], [4.0, 0.0]]
         intervals = [1.0, 1.0]
-        max_core = 50
+        max_core = 5
         overlap = 0.5
         self.test = trapezoid_gen.Trapezoid(init_points, intervals, \
                                             max_core, overlap)
@@ -40,6 +40,13 @@ class TestModule(unittest.TestCase):
         llist = self.test._core2sets(edict)
         self.assertEqual(len(slist[0]), len(llist[0]))
         self.assertEqual(len(slist[0]), len(llist[0]))
+    def test_findends(self):
+        "test _findends function."
+        slist = self.test.generate_sets()
+        endpoints = self.test._findends()
+        print slist
+        print endpoints
+        self.assertEqual(len(endpoints), 9)
 
 #Perform unittest if the script is run directly.
 if __name__ == "__main__":

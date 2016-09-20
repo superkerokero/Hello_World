@@ -112,3 +112,12 @@ class Trapezoid(object):
             dict_x[input_core[key][0]].add(key)
             dict_y[input_core[key][1]].add(key)
         return [dict_x, dict_y]
+    def _findends(self):
+        "Find the endpoints based on max_core & overlap."
+        endpoints = []
+        current = 1
+        while current<self.total_point:
+            endpoints.append([current, current+self.max_core-1])
+            current += int(self.max_core*(1-self.overlap))
+        return endpoints
+
