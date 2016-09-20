@@ -28,6 +28,13 @@ class TestModule(unittest.TestCase):
         expected_size = int((self.test.points[2][0] - self.test.points[0][0])/ \
                 self.test.intervals[0]) + 1
         self.assertEqual(expected_size, len(self.test.generate_sets()[0]))
+    def test_translate_sets(self):
+        "test translate_sets function."
+        slist = self.test.generate_sets()
+        edict = self.test.translate_sets(slist)
+        print slist
+        print edict
+        self.assertEqual(self.test.total_point, len(edict))
 
 #Perform unittest if the script is run directly.
 if __name__ == "__main__":

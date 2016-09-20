@@ -85,6 +85,14 @@ class Trapezoid(object):
                     self.total_point = num_core
                     break
         print "Raw list generation completed."
-        print dict_x
-        print dict_y
         return [dict_x, dict_y]
+    def translate_sets(self, input_set):
+        "Translate coordinate-based set into core-based set."
+        dict_core = {}
+        for key in input_set[0]:
+            for core in input_set[0][key]:
+                dict_core[core] = [key]
+        for key in input_set[1]:
+            for core in input_set[1][key]:
+                dict_core[core].append(key)
+        return dict_core
