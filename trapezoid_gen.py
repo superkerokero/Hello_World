@@ -1,8 +1,8 @@
 # coding: utf-8
 
 """ trapezoid_gen.py:
-    This is a module used to generate trapozoid points based on
-    input: four points defining a trapozoid area inside the sampling space.
+    This is a module used to generate trapezoid points based on
+    input: four points defining a trapezoid area inside the sampling space.
            (type: tuple of tuples)"""
 
 
