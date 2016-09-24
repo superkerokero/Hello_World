@@ -50,7 +50,7 @@ class Polygon(object):
             return 2
         #If they are not collinear, they must be intersecting once.
         return 1
-    def _ray_casting(self, point):
-        "Calculates how often intersects the ray(defined by the given point \
-         and an arbitrary point outside the polygon) a polygon side."
-        a = 10
+    #def _ray_casting(self, point):
+        #"Calculates how often intersects the ray(defined by the given point \
+         #and an arbitrary point outside the polygon) a polygon side."
+        #a = 10

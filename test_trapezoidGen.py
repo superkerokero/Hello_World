@@ -1,6 +1,6 @@
 # coding: utf-8
 #!/usr/bin/env python
-"""The test module for trapezoid_gen module."""
+"""The test module for trapezoidGen module."""
 
 import unittest
 import trapezoidGen
