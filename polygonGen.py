@@ -30,9 +30,9 @@ class Polygon(object):
         d1 = line1[0]*vector2[0][0] + line1[1]*vector2[0][1] + line1[2]
         d2 = line1[0]*vector2[1][0] + line1[1]*vector2[1][1] + line1[2]
         #if d1 and d2 share the same sign, two vectors don't intersect.
-        if d1*d2>0:
+        if d1*d2 > 0:
             return 0
-        """The fact that vector 2 intersected the infinite line 1 above doesn't 
+        """The fact that vector 2 intersected the infinite line 1 above doesn't
            mean it also intersects the vector 1. Vector 1 is only a subset of that
            infinite line 1, so it may have intersected that line before the vector
            started or after it ended. To know for sure, we have to repeat the
@@ -41,11 +41,11 @@ class Polygon(object):
         line2 = self._linearEquation(vector2)
         d1 = line2[0]*vector2[0][0] + line2[1]*vector2[0][1] + line2[2]
         d2 = line2[0]*vector2[1][0] + line2[1]*vector2[1][1] + line2[2]
-        if d1*d2>0:
+        if d1*d2 > 0:
             return 0
         """If we get here, only two possibilities are left. Either the two
            vectors intersect in exactly one point or they are collinear, which
-           means they intersect in any number of points from zero to infinite."""
+           means they intersect in any number of points."""
         if line1[0]*line2[1] - line2[0]*line1[1] == 0.0e0:
             return 2
         #If they are not collinear, they must be intersecting once.
@@ -53,5 +53,4 @@ class Polygon(object):
     def _ray_casting(self, point):
         "Calculates how often intersects the ray(defined by the given point \
          and an arbitrary point outside the polygon) a polygon side."
-        #http://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
         a = 10
