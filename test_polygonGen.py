@@ -20,6 +20,7 @@ class TestModule(unittest.TestCase):
         "test the _checkborder function."
         self.assertTrue(self.test._checkborder([0.0, 2.0]))
         self.assertFalse(self.test._checkborder([5.0, 4.0]))
+        print "hoo!"
 
 
 #Perform unittest if the script is run directly.
