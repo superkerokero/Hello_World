@@ -81,14 +81,19 @@ class Polygon(object):
             intersects += self._areIntersecting((bound, tpoint), edge)
         #check inside/outside by odd/even intersection counts.
         if intersects % 2 == 0:
+            #loop through all edges to see if the point is on any of them.
+            edge = (polygon[0], polygon[len(polygon) - 1])
+            if self._pointOnEdge(edge, tpoint):
+                return True    
+            for i in range (1, len(polygon)):
+                edge = (polygon[i-1], polygon[i])
+                if self._pointOnEdge(edge, tpoint):
+                    return True
             return False
         else:
             return True
     def generateSet(self, points, intervals):
-        """Generate point sets using given intervals for given polygon.
-           CAUTION: the points that lie on the edges of the polygon are not 
-           accurately evaluated. Please try to avoid these on-the-edge points
-           by setting slightly larger area."""
+        "Generate point sets using given intervals for given polygon."
         xmax = max(points, key = (lambda x: x[0]))[0]
         xmin = min(points, key = (lambda x: x[0]))[0]
         ymax = max(points, key = (lambda x: x[1]))[1]
@@ -109,3 +114,15 @@ class Polygon(object):
             x += intervals[0]
             y = ymin
         return rSet
+    def _pointOnEdge(self, edge, point):
+        "See if the point is on the edge."
+        xmax = max(edge[0][0], edge[1][0])
+        xmin = min(edge[0][0], edge[1][0])
+        ymax = max(edge[0][1], edge[1][1])
+        ymin = min(edge[0][1], edge[1][1])        
+        if xmin <= point[0] <= xmax and ymin <= point[1] <= ymax:
+            line = self._linearEquation(edge)
+            dis = line[0]*point[0] + line[1]*point[1] + line[2]
+            if dis == 0.0:
+                return True
+        return False
