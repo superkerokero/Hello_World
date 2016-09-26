@@ -10,6 +10,10 @@ class Polygon(object):
         "Constructor of the class."
         self.points = init_points
         self.npoints = len(self.points)
+        self.xmax = max(self.points, key = (lambda x: x[0]))[0]
+        self.xmin = min(self.points, key = (lambda x: x[0]))[0]
+        self.ymax = max(self.points, key = (lambda x: x[1]))[1]
+        self.ymin = min(self.points, key = (lambda x: x[1]))[1]
     @staticmethod
     def _linearEquation(vector):
         """Convert vector to a line of infinite length.
@@ -39,8 +43,8 @@ class Polygon(object):
            the same test the other way round. We start by calculating the 
            infinite line 2 in linear equation standard form."""
         line2 = self._linearEquation(vector2)
-        d1 = line2[0]*vector2[0][0] + line2[1]*vector2[0][1] + line2[2]
-        d2 = line2[0]*vector2[1][0] + line2[1]*vector2[1][1] + line2[2]
+        d1 = line2[0]*vector1[0][0] + line2[1]*vector1[0][1] + line2[2]
+        d2 = line2[0]*vector1[1][0] + line2[1]*vector1[1][1] + line2[2]
         if d1*d2 > 0:
             return 0
         """If we get here, only two possibilities are left. Either the two
@@ -50,7 +54,25 @@ class Polygon(object):
             return 2
         #If they are not collinear, they must be intersecting once.
         return 1
-    #def _ray_casting(self, point):
-        #"Calculates how often intersects the ray(defined by the given point \
-         #and an arbitrary point outside the polygon) a polygon side."
-        #a = 10
+    def rayCastingInside(self, polygon, point):
+        """Calculates how often intersects the ray(defined by the given point
+           and an arbitrary point outside the polygon) a polygon side. Then decide
+           whether the point is within the polygon."""
+        #avoid "vertex on the tip" problem.
+        if point in polygon:
+            return True
+        #set the point that is outside of the polygon.
+        bound = (min(polygon, key = (lambda x: x[0]))[0] - 1.e0, point[1])
+        #initialize intersections counter.
+        edge = (polygon[0], polygon[len(polygon) - 1])
+        intersects = self._areIntersecting((bound, point), edge)
+        #loop all edges of the polygon and count total intersections.
+        for i in range (1, len(polygon)):
+            edge = (polygon[i-1], polygon[i])
+            intersects += self._areIntersecting((bound, point), edge)
+        #check inside/outside by odd/even intersection counts.
+        if intersects % 2 == 0:
+            return False
+        else:
+            return True
+
