@@ -10,7 +10,7 @@ class TestModule(unittest.TestCase):
     """Unittest extend."""
     def setUp(self):
         "setup initial conditions for test."
-        init_points = ((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0))
+        init_points = ((0.0, 0.0), (0.0, 2.01), (4.01, 4.01), (4.01, 0.0))
         self.test = polygonGen.Polygon(init_points)
     def tearDown(self):
         "destructor for test."
@@ -37,9 +37,11 @@ class TestModule(unittest.TestCase):
                                                     ((3.5, 3.5), (4.5, 4.5))), 2)
     def test_rayCastingInside(self):
         "test the rayCastingInside function."
-        self.assertTrue(self.test.rayCastingInside(self.test.points, (2.0, 1.0)))
+        self.assertTrue(self.test.rayCastingInside(self.test.points, (4.0, 2.0)))
         self.assertFalse(self.test.rayCastingInside(self.test.points, (3.0, 4.0)))
-
+    def test_generateSet(self):
+        "test the generateSet function."
+        self.assertEqual(len(self.test.generateSet(self.test.points, (2.0, 2.0))), 7)
 
 #Perform unittest if the script is run directly.
 if __name__ == "__main__":

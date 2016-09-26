@@ -9,11 +9,6 @@ class Polygon(object):
     def __init__(self, init_points):
         "Constructor of the class."
         self.points = init_points
-        self.npoints = len(self.points)
-        self.xmax = max(self.points, key = (lambda x: x[0]))[0]
-        self.xmin = min(self.points, key = (lambda x: x[0]))[0]
-        self.ymax = max(self.points, key = (lambda x: x[1]))[1]
-        self.ymin = min(self.points, key = (lambda x: x[1]))[1]
     @staticmethod
     def _linearEquation(vector):
         """Convert vector to a line of infinite length.
@@ -62,17 +57,55 @@ class Polygon(object):
         if point in polygon:
             return True
         #set the point that is outside of the polygon.
-        bound = (min(polygon, key = (lambda x: x[0]))[0] - 1.e0, point[1])
+        bound = (min(polygon, key = (lambda x: x[0]))[0] - 1.0, point[1])
         #initialize intersections counter.
         edge = (polygon[0], polygon[len(polygon) - 1])
-        intersects = self._areIntersecting((bound, point), edge)
+        #solve the "ray on the vertex" problem.
+        ymax = max(edge[0][1], edge[1][1])
+        ymin = min(edge[0][1], edge[1][1])
+        if point[1] == ymax or point[1] == ymin:
+            tpoint = (point[0], point[1] + 1.e-10*abs(ymax))
+        else:
+            tpoint = point
+        intersects = self._areIntersecting((bound, tpoint), edge)
         #loop all edges of the polygon and count total intersections.
         for i in range (1, len(polygon)):
             edge = (polygon[i-1], polygon[i])
-            intersects += self._areIntersecting((bound, point), edge)
+            #solve the "ray on the vertex" problem.
+            ymax = max(edge[0][1], edge[1][1])
+            ymin = min(edge[0][1], edge[1][1])
+            if point[1] == ymax or point[1] == ymin:
+                tpoint = (point[0], point[1] + 1.e-10*abs(ymax))
+            else:
+                tpoint = point
+            intersects += self._areIntersecting((bound, tpoint), edge)
         #check inside/outside by odd/even intersection counts.
         if intersects % 2 == 0:
             return False
         else:
             return True
-
+    def generateSet(self, points, intervals):
+        """Generate point sets using given intervals for given polygon.
+           CAUTION: the points that lie on the edges of the polygon are not 
+           accurately evaluated. Please try to avoid these on-the-edge points
+           by setting slightly larger area."""
+        xmax = max(points, key = (lambda x: x[0]))[0]
+        xmin = min(points, key = (lambda x: x[0]))[0]
+        ymax = max(points, key = (lambda x: x[1]))[1]
+        ymin = min(points, key = (lambda x: x[1]))[1]
+        #initialization.
+        rSet = set()
+        #try to add first point.
+        x = xmin
+        y = ymin
+        if self.rayCastingInside(points, (x, y)):
+            rSet.add((x, y))
+        #add rest points.
+        while x <= xmax:
+            while y <= ymax:
+                if self.rayCastingInside(self.points, (x, y)):
+                    rSet.add((x, y))
+                y += intervals[1]
+            x += intervals[0]
+            y = ymin
+        return rSet
