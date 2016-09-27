@@ -6,10 +6,11 @@
 
 
 class Polygon(object):
-    def __init__(self, init_points):
+    def __init__(self, init_points, intervals):
         "Constructor of the class."
         self.points = init_points
-
+        self.rSet = self.generateSet(self.points, intervals)
+        
     @staticmethod
     def _linearEquation(vector):
         """Convert vector to a line of infinite length.
@@ -103,17 +104,17 @@ class Polygon(object):
         ymax = max(points, key=(lambda x: x[1]))[1]
         ymin = min(points, key=(lambda x: x[1]))[1]
         # initialization.
-        rSet = set()
+        rSet = dict()
+        nSet = 0
         # try to add first point.
         x = xmin
         y = ymin
-        if self.rayCastingInside(points, (x, y)):
-            rSet.add((x, y))
         # add rest points.
         while x <= xmax:
             while y <= ymax:
                 if self.rayCastingInside(self.points, (x, y)):
-                    rSet.add((x, y))
+                    nSet += 1
+                    rSet[nSet] = (x, y)
                 y += intervals[1]
             x += intervals[0]
             y = ymin
@@ -131,3 +132,42 @@ class Polygon(object):
             if dis == 0.0:
                 return True
         return False
+
+    @staticmethod
+    def _core2coord(rSet):
+        "Translate core-based set into coordinate-based set."
+        dict_x = {}
+        dict_y = {}
+        # first create empty dicts with correct keys.
+        for key in input_core:
+            dict_x[input_core[key][0]] = set()
+            dict_y[input_core[key][1]] = set()
+        # then fill the dicts with correct values.
+        for key in input_core:
+            dict_x[input_core[key][0]].add(key)
+            dict_y[input_core[key][1]].add(key)
+        return [dict_x, dict_y]
+        
+    def generateSubSet(self, polygon, max_nSet):
+        "Generate subSet from self.rSet that lies within given polygon."
+        nSet = 0
+        # this is for storing subSet dict.
+        subSet = dict()
+        # we need a table to tell what the ID in the subSet is in the rSet.
+        subSetID = dict()
+        for key in self.rSet:
+            if self.rayCastingInside(polygon, self.rSet[key]):
+                nSet += 1
+                subSetID[nSet] = key
+                subSet[nSet] = self.rSet[key]
+                if nSet == max_nSet:
+                    print "Reached max_nSet."
+                    print "Given set number: %d" % max_nSet
+                    print "Last point in the set: %d, %d" % subSet[nSet]
+                    break
+        if nSet != max_nSet:
+            print "Given polygon was filled before reaching given set "+ \
+                "number."
+            print "Given set number: %d" % max_nSet
+            print "Generated set number: %d" % nSet
+        return (subSet, subSetID)

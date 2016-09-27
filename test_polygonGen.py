@@ -11,7 +11,8 @@ class TestModule(unittest.TestCase):
     def setUp(self):
         "setup initial conditions for test."
         init_points = ((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0))
-        self.test = polygonGen.Polygon(init_points)
+        intervals = ((2.0), (2.0))
+        self.test = polygonGen.Polygon(init_points, intervals)
 
     def tearDown(self):
         "destructor for test."
@@ -55,6 +56,12 @@ class TestModule(unittest.TestCase):
         "test the _pointOnEdge function."
         self.assertTrue(self.test._pointOnEdge(((1.0, 1.0), (4.0, 4.0)),
                                                (1.2, 1.2)))
+
+    def test_generateSubSet(self):
+        "test the _generateSubSet function."
+        polygon = ((2.0, 0.0), (2.0, 2.0), (4.0, 2.0), (4.0, 0.0))
+        max_nSet = 7
+        self.assertEqual(len(self.test.generateSubSet(polygon, max_nSet)[0]), 4)
 
 # Perform unittest if the script is run directly.
 if __name__ == "__main__":
