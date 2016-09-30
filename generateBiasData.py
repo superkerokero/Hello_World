@@ -7,6 +7,7 @@
 import polygonGen
 import json
 import sys
+import os
 
 
 def writeExample():
@@ -20,11 +21,15 @@ def writeExample():
     fi["y_biassec"] = ("y ", " and ")
     # Using "pretty printing" format.
     sinput = json.dumps(fi, sort_keys=True, indent=4)
+    input_file_name = "example_input"
     try:
-        with open("example_input", "r+U") as wfile:
+        if os.path.exists(input_file_name):
+            os.remove(input_file_name)
+        with open(input_file_name, "w+") as wfile:
             wfile.write(sinput)
     except IOError:
-        print "Error during open wfile. Check if the file already exists."
+        print "writeExample: Error during open wfile." + \
+        "Check if the file already exists." + input_file_name
 
 def readFile(f):
     "Open a given file to read in parameters."
@@ -32,7 +37,8 @@ def readFile(f):
         with open(f, "rU") as funit:
             string = funit.read()
     except IOError:
-        sys.exit("Error during open file \'"+f+"\'. Check if the file exists.")
+        sys.exit("readFile: Error during open file \'"+f+
+                 "\'. Check if the file exists.")
     return json.loads(string)
 
 def set2str(inset):
