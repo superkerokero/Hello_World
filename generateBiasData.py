@@ -8,9 +8,10 @@ import polygonGen
 import json
 import sys
 import os
+import argparse
 
 
-def writeExample():
+def writeExample(input_file_name):
     "This is a function to write example input file."
     fi = dict()
     fi["initial_polygon"] = ((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0))
@@ -21,7 +22,6 @@ def writeExample():
     fi["y_biassec"] = ("y ", " and ")
     # Using "pretty printing" format.
     sinput = json.dumps(fi, sort_keys=True, indent=4)
-    input_file_name = "example_input"
     try:
         if os.path.exists(input_file_name):
             os.remove(input_file_name)
@@ -87,10 +87,27 @@ def generateData(info):
         str_id.append(strout)
     return [str_data, str_id]
 
+def cmdParse():
+    "Parse the command line argument for parameters."
+    parser = argparse.ArgumentParser(description="Generate biasdata.")
+    parser.add_argument("-ex", action="store_true", dest="example_gen",
+                        help="Generate example input file if this arg" + \
+                        " exists.")
+    parser.add_argument("-i", nargs="?", dest="input_file_name",
+                        default="example_input", metavar="filename",
+                        help="input file name.")
+    parser.add_argument("-o", nargs="?", dest="output_file_name",
+                        default="example_output", metavar="filename",
+                        help="output file name.")
+    return parser.parse_args()
+
 
 # Perform following operations if the script is run directly.
 if __name__ == "__main__":
-    writeExample()
-    info = readFile("example_input")
+    arguments = cmdParse()
+    if arguments.example_gen:
+        writeExample(arguments.input_file_name)
+        sys.exit("Generated example file name: " + \
+                 arguments.input_file_name)
+    info = readFile(arguments.input_file_name)
     sout = generateData(info)
-
