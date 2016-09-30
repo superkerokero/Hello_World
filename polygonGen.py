@@ -58,7 +58,7 @@ class Polygon(object):
            and an arbitrary point outside the polygon) a polygon side. Then
            decide whether the point is within the polygon."""
         # avoid "vertex on the tip" problem.
-        if point in polygon:
+        if list(point) in polygon:
             return True
         # set the point that is outside of the polygon.
         bound = (min(polygon, key=(lambda x: x[0]))[0] - 1.0, point[1])
@@ -134,18 +134,18 @@ class Polygon(object):
         return False
 
     @staticmethod
-    def _core2coord(rSet):
+    def core2coord(rSet):
         "Translate core-based set into coordinate-based set."
         dict_x = {}
         dict_y = {}
         # first create empty dicts with correct keys.
-        for key in input_core:
-            dict_x[input_core[key][0]] = set()
-            dict_y[input_core[key][1]] = set()
+        for key in rSet:
+            dict_x[rSet[key][0]] = set()
+            dict_y[rSet[key][1]] = set()
         # then fill the dicts with correct values.
-        for key in input_core:
-            dict_x[input_core[key][0]].add(key)
-            dict_y[input_core[key][1]].add(key)
+        for key in rSet:
+            dict_x[rSet[key][0]].add(key)
+            dict_y[rSet[key][1]].add(key)
         return [dict_x, dict_y]
         
     def generateSubSet(self, polygon, max_nSet):
