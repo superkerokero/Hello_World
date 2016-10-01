@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """ generateBiasData.py:
-    This is a script used to generate &biasdata for H-REMD 
+    This is a script used to generate &biasdata for H-REMD
     in FreeFlex."""
 
 import polygonGen
@@ -18,10 +18,15 @@ def writeExample(input_file_name):
     fi["intervals"] = (1.0, 1.0)
     fi["sub_polygons"] = (((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0)),
                           ((2.0, 0.0), (2.0, 4.0), (4.0, 4.0), (4.0, 0.0)))
-    fi["x_biassec"] = ("x ", " and ")
-    fi["y_biassec"] = ("y ", " and ")
+    fi["x_biassec"] = ("TESTX 1 1 1 3.1", "0.e0")
+    fi["y_biassec"] = ("TESTY 1 1 2 1.0 2.0", "0.e0")
     # Using "pretty printing" format.
     sinput = json.dumps(fi, sort_keys=True, indent=4)
+    try:
+        os.mkdir("files")
+        print "Created directory \'files\'."
+    except OSError:
+        print "Directory \'files\' already exists."
     try:
         if os.path.exists(input_file_name):
             os.remove(input_file_name)
@@ -29,17 +34,69 @@ def writeExample(input_file_name):
             wfile.write(sinput)
     except IOError:
         print "writeExample: Error during open wfile." + \
-        "Check if the file already exists." + input_file_name
+              "Check if the file already exists." + input_file_name
 
-def readFile(f):
+
+def createSample(filename):
+    "Create sample files for testing."
+    try:
+        os.makedirs("files/samples")
+        print "Created directory \'files/samples\'."
+    except OSError:
+        print "Directory \'files/samples\' already exists."
+    numbers = list()
+    for i in range(20):
+        numbers.append(float(i))
+    for number in numbers:
+        cfilename = "files/samples/" + filename + str(number)
+        try:
+            if os.path.exists(cfilename):
+                os.remove(cfilename)
+            with open(cfilename, "w+") as funit:
+                funit.write(str(number)+"\n")
+        except IOError:
+            sys.exit("createSample: Error during open file \'" +
+                     cfilename + "\'. Check if the file exists.")
+    print "Successfully generated " + str(len(numbers)) + \
+          " sample files for test."
+
+
+def readFile(filename):
     "Open a given file to read in parameters."
     try:
-        with open(f, "rU") as funit:
+        with open(filename, "rU") as funit:
             string = funit.read()
     except IOError:
-        sys.exit("readFile: Error during open file \'"+f+
+        sys.exit("readFile: Error during open file \'" + filename +
                  "\'. Check if the file exists.")
     return json.loads(string)
+    
+
+def writeFile(filename, strout):
+    "Write given string(s) into file(s)."
+    count = 0
+    for string in strout:
+        count += 1
+        cfilename = filename + str(count)
+        try:
+            if os.path.exists(cfilename):
+                os.remove(cfilename)
+            with open(cfilename, "w+") as funit:
+                funit.write(string)
+        except IOError:
+            sys.exit("writeFiles: Error during open file \'" +
+                     cfilename + "\'. Check if the file exists.")
+
+
+def writeFiles(filename, strout):
+    "Write &biasdata and replicaID files."
+    # write the &biasdata file.
+    writeFile(filename[0], strout[0])
+    # write the replicaID file.
+    writeFile(filename[1], strout[1])
+    print "Successfully written output " + str(len(strout[0])*2) + \
+          " file(s)."
+
 
 def set2str(inset):
     "Convert set data into string(no parentheses)."
@@ -48,6 +105,7 @@ def set2str(inset):
         string += (str(element) + " ")
     return string
 
+
 def dict2str(indict):
     "Convert single dict (key: value) pair into string(no parentheses)."
     string = ""
@@ -55,11 +113,12 @@ def dict2str(indict):
         string += str(key) + " " + str(value) + "\n"
     return string
         
+        
 def generateData(info):
     "Generate data based on given info."
     # First create the total poly.
     poly = polygonGen.Polygon(info["initial_polygon"],
-                               info["intervals"])
+                              info["intervals"])
     # Create sub-polys from total poly.
     sub_poly_info = list()
     for tpoly in info["sub_polygons"]:
@@ -72,13 +131,14 @@ def generateData(info):
     str_data = list()
     # The coord_based contains multiple [dict_x, dict_y] pairs.
     for data in coord_based:
-        strout = ""
+        strout = "&biasdata\n"
         for key, value in data[0].iteritems():
-            strout += (info["x_biassec"][0] + str(key) + info["x_biassec"][1] +
-                       set2str(value) + "\n")
+            strout += (info["x_biassec"][0] + " " + str(key) + " " +
+                       info["x_biassec"][1] + " " + set2str(value) + "\n")
         for key, value in data[1].iteritems():
-            strout += (info["y_biassec"][0] + str(key) + info["y_biassec"][1] +
-                       set2str(value) + "\n")
+            strout += (info["y_biassec"][0] + " " + str(key) + " " +
+                       info["y_biassec"][1] + " " + set2str(value) + "\n")
+        strout += "&end\n"
         str_data.append(strout)
     # Convert id list into string.
     str_id = list()
@@ -86,19 +146,26 @@ def generateData(info):
         strout = dict2str(each_info[1])
         str_id.append(strout)
     return [str_data, str_id]
+    
 
 def cmdParse():
     "Parse the command line argument for parameters."
     parser = argparse.ArgumentParser(description="Generate biasdata.")
     parser.add_argument("-ex", action="store_true", dest="example_gen",
-                        help="Generate example input file if this arg" + \
+                        help="Generate example input file if this arg" +
                         " exists.")
     parser.add_argument("-i", nargs="?", dest="input_file_name",
-                        default="example_input", metavar="filename",
+                        default="files/example_input", metavar="filename",
                         help="input file name.")
     parser.add_argument("-o", nargs="?", dest="output_file_name",
-                        default="example_output", metavar="filename",
-                        help="output file name.")
+                        default="files/example_output", metavar="filename",
+                        help="output file name for biasdata.")
+    parser.add_argument("-repid", nargs="?", dest="output_repidfile_name",
+                        default="files/repid", metavar="filename",
+                        help="output file name for replica id list.")
+    parser.add_argument("-sample", action="store_true", dest="sample_gen",
+                        help="Generate a series of samples for " +
+                        "tesing if this arg exists.")
     return parser.parse_args()
 
 
@@ -107,7 +174,13 @@ if __name__ == "__main__":
     arguments = cmdParse()
     if arguments.example_gen:
         writeExample(arguments.input_file_name)
-        sys.exit("Generated example file name: " + \
+        sys.exit("Generated example file name: " +
                  arguments.input_file_name)
+    if arguments.sample_gen:
+        createSample("sample_")
+        sys.exit("Generation of samples completed.")
     info = readFile(arguments.input_file_name)
     sout = generateData(info)
+    writeFiles((arguments.output_file_name,
+                arguments.output_repidfile_name), sout)
+    
