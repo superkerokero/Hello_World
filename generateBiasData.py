@@ -15,9 +15,9 @@ import shutil
 def writeExample(input_file_name):
     "This is a function to write example input file."
     fi = dict()
-    fi["initial_polygon"] = ((0.0, 0.0), (0.0, 2.0), (8.0, 8.0), (8.0, 0.0))
+    fi["initial_polygon"] = ((0.0, 0.0), (0.0, 2.0), (2.0, 2.0), (2.0, 0.0))
     fi["intervals"] = (1.0, 1.0)
-    fi["sub_polygons"] = (((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0)),
+    fi["sub_polygons"] = (((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),
                           ((2.0, 0.0), (2.0, 4.0), (4.0, 4.0), (4.0, 0.0)))
     fi["x_biassec"] = ("TESTX 1 1 1 3.1", "0.e0")
     fi["y_biassec"] = ("TESTY 1 1 2 1.0 2.0", "0.e0")
@@ -129,7 +129,26 @@ def dict2str(indict):
     for key, value in indict.iteritems():
         string += str(key) + " " + str(value) + "\n"
     return string
-        
+
+
+def countPointPairs(iSet, intervals):
+    """Given a set of points, count the number of adjacent pairs
+       (including diagonal pairs)."""
+    count = 0
+    for p, v in iSet.iteritems():
+        for tp, tv in iSet.iteritems():
+            A = v[0] == tv[0]
+            B = v[1] == tv[1]
+            C = abs(v[0]-tv[0]) == intervals[0]
+            D = abs(v[1]-tv[1]) == intervals[1]
+            logicA = A and D
+            logicB = B and C
+            logicC = C and D
+            if logicA or logicB or logicC:
+                count+=1
+    # every pair was counted twice.
+    return count/2
+
         
 def generateData(info):
     "Generate data based on given info."
@@ -146,15 +165,18 @@ def generateData(info):
         strout += (info["ty_biassec"][0] + " " + str(key) + " " +
                    info["ty_biassec"][1] + " " + set2str(value) + "\n")
     str_total = strout + "&end\n"
-        
     # Create sub-polys from total poly.
     sub_poly_info = list()
     for tpoly in info["sub_polygons"]:
         sub_poly_info.append(poly.generateSubSet(tpoly, 20))
     # Convert core-based data into coord-based data.
     coord_based = list()
+    count = 0
     for sub_poly in sub_poly_info:
+        count += 1
         coord_based.append(poly.core2coord(sub_poly[0]))
+        npairs = countPointPairs(sub_poly[0], info["intervals"])
+        print "Subpoly {0} has {1} potential pairs.".format(count, npairs)
     # Convert dict data into writable strings.
     str_data = list()
     # The coord_based contains multiple [dict_x, dict_y] pairs.
