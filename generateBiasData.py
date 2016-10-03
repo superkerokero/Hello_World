@@ -20,6 +20,7 @@ def writeExample(input_file_name):
                           ((2.0, 0.0), (2.0, 4.0), (4.0, 4.0), (4.0, 0.0)))
     fi["x_biassec"] = ("TESTX 1 1 1 3.1", "0.e0")
     fi["y_biassec"] = ("TESTY 1 1 2 1.0 2.0", "0.e0")
+    fi["sample_dir"] = os.getcwd() + "/files/samples"
     # Using "pretty printing" format.
     sinput = json.dumps(fi, sort_keys=True, indent=4)
     try:
@@ -166,7 +167,26 @@ def cmdParse():
     parser.add_argument("-sample", action="store_true", dest="sample_gen",
                         help="Generate a series of samples for " +
                         "tesing if this arg exists.")
+    parser.add_argument("-uses", action="store_true", dest="sample_use",
+                        help="Use generated samples to create MD initial " +
+                        "conditions.")
     return parser.parse_args()
+
+
+def getSamples(workdir, headstr="sample_"):
+    """Recieve a path name and get sample files that starts with headstr
+       contained in it."""
+    samples = dict()
+    for root, dirs, files in os.walk(workdir):
+        for f in files:
+            if f.startswith(headstr):
+                try:
+                    value = float(f[len(headstr):])
+                    samples[value] = os.path.join(root, f)
+                except ValueError:
+                    print "Unrecognizable file ignored: " + f
+    print "Successfully recognized %d samples." % len(samples)
+    return samples
 
 
 # Perform following operations if the script is run directly.
@@ -183,4 +203,6 @@ if __name__ == "__main__":
     sout = generateData(info)
     writeFiles((arguments.output_file_name,
                 arguments.output_repidfile_name), sout)
-    
+    if arguments.sample_use:
+        samples = getSamples("files/samples/")
+
