@@ -15,12 +15,14 @@ import shutil
 def writeExample(input_file_name):
     "This is a function to write example input file."
     fi = dict()
-    fi["initial_polygon"] = ((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0))
+    fi["initial_polygon"] = ((0.0, 0.0), (0.0, 2.0), (8.0, 8.0), (8.0, 0.0))
     fi["intervals"] = (1.0, 1.0)
     fi["sub_polygons"] = (((0.0, 0.0), (0.0, 2.0), (4.0, 4.0), (4.0, 0.0)),
                           ((2.0, 0.0), (2.0, 4.0), (4.0, 4.0), (4.0, 0.0)))
     fi["x_biassec"] = ("TESTX 1 1 1 3.1", "0.e0")
     fi["y_biassec"] = ("TESTY 1 1 2 1.0 2.0", "0.e0")
+    fi["tx_biassec"] = ("TESTtotalX 1 1 1 3.1", "0.e0")
+    fi["ty_biassec"] = ("TESTtotalY 1 1 2 1.0 2.0", "0.e0")
     fi["sample_dir"] = os.getcwd() + "/files/samples"
     fi["headstr"] = "newsample"
     fi["struct_dir"] = os.getcwd() + "/files/structs"
@@ -88,12 +90,23 @@ def writeFile(filename, strout):
             with open(cfilename, "w+") as funit:
                 funit.write(string)
         except IOError:
-            sys.exit("writeFiles: Error during open file \'" +
+            sys.exit("writeFile: Error during open file \'" +
                      cfilename + "\'. Check if the file exists.")
 
 
 def writeFiles(filename, strout):
     "Write &biasdata and replicaID files."
+    # write total &biasdata file.
+    cfilename = filename[0] + "_total"
+    try:
+        if os.path.exists(cfilename):
+            os.remove(cfilename)
+        with open(cfilename, "w+") as funit:
+            funit.write(strout[3])
+    except IOError:
+        sys.exit("writeFiles: Error during open file \'" +
+                 cfilename + "\'.")
+
     # write the &biasdata file.
     writeFile(filename[0], strout[0])
     # write the replicaID file.
@@ -123,6 +136,17 @@ def generateData(info):
     # First create the total poly.
     poly = polygonGen.Polygon(info["initial_polygon"],
                               info["intervals"])
+    # Create the coord-based data containing all sets in the main poly.
+    coord_total = poly.core2coord(poly.rSet)
+    strout = "&biasdata\n"
+    for key, value in coord_total[0].iteritems():
+        strout += (info["tx_biassec"][0] + " " + str(key) + " " +
+                   info["tx_biassec"][1] + " " + set2str(value) + "\n")
+    for key, value in coord_total[1].iteritems():
+        strout += (info["ty_biassec"][0] + " " + str(key) + " " +
+                   info["ty_biassec"][1] + " " + set2str(value) + "\n")
+    str_total = strout + "&end\n"
+        
     # Create sub-polys from total poly.
     sub_poly_info = list()
     for tpoly in info["sub_polygons"]:
@@ -149,8 +173,8 @@ def generateData(info):
     for each_info in sub_poly_info:
         strout = dict2str(each_info[1])
         str_id.append(strout)
-    return [str_data, str_id, coord_based]
-    
+    return [str_data, str_id, coord_based, str_total]
+
 
 def cmdParse():
     "Parse the command line argument for parameters."
@@ -220,7 +244,6 @@ def copySamples(coord_based, samples, workdir, coord_id=0):
             else:
                 sys.exit("The file with value \'" + str(key) + \
                          "\' wasn't found. Check the sample folder.")
-                        
     print "Successfully copied sample files."
 
 
