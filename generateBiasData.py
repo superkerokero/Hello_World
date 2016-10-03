@@ -9,6 +9,7 @@ import json
 import sys
 import os
 import argparse
+import shutil
 
 
 def writeExample(input_file_name):
@@ -21,6 +22,8 @@ def writeExample(input_file_name):
     fi["x_biassec"] = ("TESTX 1 1 1 3.1", "0.e0")
     fi["y_biassec"] = ("TESTY 1 1 2 1.0 2.0", "0.e0")
     fi["sample_dir"] = os.getcwd() + "/files/samples"
+    fi["headstr"] = "newsample"
+    fi["struct_dir"] = os.getcwd() + "/files/structs"
     # Using "pretty printing" format.
     sinput = json.dumps(fi, sort_keys=True, indent=4)
     try:
@@ -146,7 +149,7 @@ def generateData(info):
     for each_info in sub_poly_info:
         strout = dict2str(each_info[1])
         str_id.append(strout)
-    return [str_data, str_id]
+    return [str_data, str_id, coord_based]
     
 
 def cmdParse():
@@ -189,6 +192,38 @@ def getSamples(workdir, headstr="sample_"):
     return samples
 
 
+def copySamples(coord_based, samples, workdir, coord_id=0):
+    "Copy samples into designated workdir according to coord values."
+    # create root dir for copied files.
+    try:
+        os.mkdir(workdir)
+    except OSError:
+        print "The \'%s\' already exists." % workdir
+    count = 0
+    for data in coord_based:
+        count += 1
+        for key, value in data[coord_id].iteritems():
+            if key in samples:
+                for core in value:
+                    newdir = workdir + "/" + str(core-1).zfill(4) + "/"
+                    try:
+                        os.mkdir(newdir)
+                    except OSError:
+                        pass
+                    try:
+                        shutil.copyfile(samples[key], newdir + "struct_" + \
+                                        str(count))
+                    except shutil.Error:
+                        sys.exit("Target and source are the same!")
+                    except IOError:
+                        sys.exit("The destination is not writtable!")
+            else:
+                sys.exit("The file with value \'" + str(key) + \
+                         "\' wasn't found. Check the sample folder.")
+                        
+    print "Successfully copied sample files."
+
+
 # Perform following operations if the script is run directly.
 if __name__ == "__main__":
     arguments = cmdParse()
@@ -196,13 +231,13 @@ if __name__ == "__main__":
         writeExample(arguments.input_file_name)
         sys.exit("Generated example file name: " +
                  arguments.input_file_name)
-    if arguments.sample_gen:
-        createSample("sample_")
-        sys.exit("Generation of samples completed.")
     info = readFile(arguments.input_file_name)
+    if arguments.sample_gen:
+        createSample(info["headstr"])
+        sys.exit("Generation of samples completed.")
     sout = generateData(info)
     writeFiles((arguments.output_file_name,
                 arguments.output_repidfile_name), sout)
     if arguments.sample_use:
-        samples = getSamples("files/samples/")
-
+        samples = getSamples(info["sample_dir"], info["headstr"])
+        copySamples(sout[2], samples, info["struct_dir"])
