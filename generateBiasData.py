@@ -26,6 +26,7 @@ def writeExample(input_file_name):
     fi["sample_dir"] = os.getcwd() + "/files/samples"
     fi["headstr"] = "newsample"
     fi["struct_dir"] = os.getcwd() + "/files/structs"
+    fi["max_ncore"] = 100
     # Using "pretty printing" format.
     sinput = json.dumps(fi, sort_keys=True, indent=4)
     try:
@@ -168,7 +169,7 @@ def generateData(info):
     # Create sub-polys from total poly.
     sub_poly_info = list()
     for tpoly in info["sub_polygons"]:
-        sub_poly_info.append(poly.generateSubSet(tpoly, 20))
+        sub_poly_info.append(poly.generateSubSet(tpoly, info["max_ncore"]))
     # Convert core-based data into coord-based data.
     coord_based = list()
     count = 0
