@@ -253,7 +253,6 @@ def copySamples(coord_based, samples, workdir, coord_id=0):
         count += 1
         for key, value in data[coord_id].iteritems():
             if str(key) in samples:
-                print "Key {0} was found!".format(key)
                 for core in value:
                     newdir = workdir + "/" + str(core-1).zfill(4) + "/"
                     try:
