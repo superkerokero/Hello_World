@@ -136,12 +136,14 @@ def countPointPairs(iSet, intervals):
     """Given a set of points, count the number of adjacent pairs
        (including diagonal pairs)."""
     count = 0
+    # setting eps to account for round-off errors in float.
+    eps = 1.0e-18
     for p, v in iSet.iteritems():
         for tp, tv in iSet.iteritems():
-            A = v[0] == tv[0]
-            B = v[1] == tv[1]
-            C = abs(v[0]-tv[0]) == intervals[0]
-            D = abs(v[1]-tv[1]) == intervals[1]
+            A = abs(v[0]-tv[0]) <= eps
+            B = abs(v[1]-tv[1]) <= eps
+            C = abs(abs(v[0]-tv[0])-intervals[0]) <= eps
+            D = abs(abs(v[1]-tv[1])-intervals[1]) <= eps
             logicA = A and D
             logicB = B and C
             logicC = C and D
@@ -232,7 +234,7 @@ def getSamples(workdir, headstr="sample_"):
             if f.startswith(headstr):
                 try:
                     value = float(f[len(headstr):])
-                    samples[value] = os.path.join(root, f)
+                    samples[str(value)] = os.path.join(root, f)
                 except ValueError:
                     print "Unrecognizable file ignored: " + f
     print "Successfully recognized %d samples." % len(samples)
@@ -250,7 +252,8 @@ def copySamples(coord_based, samples, workdir, coord_id=0):
     for data in coord_based:
         count += 1
         for key, value in data[coord_id].iteritems():
-            if key in samples:
+            if str(key) in samples:
+                print "Key {0} was found!".format(key)
                 for core in value:
                     newdir = workdir + "/" + str(core-1).zfill(4) + "/"
                     try:
@@ -258,7 +261,7 @@ def copySamples(coord_based, samples, workdir, coord_id=0):
                     except OSError:
                         pass
                     try:
-                        shutil.copyfile(samples[key], newdir + "struct_" + \
+                        shutil.copyfile(samples[str(key)], newdir + "struct_" + \
                                         str(count))
                     except shutil.Error:
                         sys.exit("Target and source are the same!")
