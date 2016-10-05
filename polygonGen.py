@@ -163,7 +163,7 @@ class Polygon(object):
                 if nSet == max_nSet:
                     print "Reached max_nSet."
                     print "Given set number: %d" % max_nSet
-                    print "Last point in the set: %d, %d" % subSet[nSet]
+                    print "Last point in the set: {0}".format(subSet[nSet])
                     break
         if nSet != max_nSet:
             print "Given polygon was filled before reaching given set "+ \
