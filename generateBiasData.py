@@ -158,6 +158,7 @@ def generateData(info):
     # First create the total poly.
     poly = polygonGen.Polygon(info["initial_polygon"],
                               info["intervals"])
+    print "The initial_polygon has {0} points in total.".format(len(poly.rSet))
     # Create the coord-based data containing all sets in the main poly.
     coord_total = poly.core2coord(poly.rSet)
     strout = "&biasdata\n"
