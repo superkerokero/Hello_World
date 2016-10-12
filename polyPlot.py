@@ -20,16 +20,15 @@ class polyPlot(object):
         fig = plt.figure(1)
         self.ax = fig.gca(projection='3d')
 
-    def addPolygon(self, sets, vz = 0.e0):
+    def addPolygon(self, sets, vz = 0.e0, color="b"):
         "Add points to draw at a certain z value."
         size = len(sets)
         x = np.zeros(size)
         y = np.zeros(size)
-        z = np.ones(size) * vz
         for key, value in sets.iteritems():
-            x[key] = value[0]
-            y[key] = value[1]
-        self.ax.plot(x, y, z)
+            x[key-1] = value[0]
+            y[key-1] = value[1]
+        self.ax.scatter(x, y, vz, c=color)
 
     def showPlot(self):
         "Show all added points."

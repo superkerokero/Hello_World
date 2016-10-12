@@ -5,11 +5,13 @@
     in FreeFlex."""
 
 import polygonGen
+import polyPlot
 import json
 import sys
 import os
 import argparse
 import shutil
+import random
 
 
 def writeExample(input_file_name):
@@ -153,12 +155,13 @@ def countPointPairs(iSet, intervals):
     return count/2
 
         
-def generateData(info):
+def generateData(info, show_plot):
     "Generate data based on given info."
     # First create the total poly.
     poly = polygonGen.Polygon(info["initial_polygon"],
                               info["intervals"])
     print "The initial_polygon has {0} points in total.".format(len(poly.rSet))
+
     # Create the coord-based data containing all sets in the main poly.
     coord_total = poly.core2coord(poly.rSet)
     strout = "&biasdata\n"
@@ -173,6 +176,19 @@ def generateData(info):
     sub_poly_info = list()
     for tpoly in info["sub_polygons"]:
         sub_poly_info.append(poly.generateSubSet(tpoly, info["max_ncore"]))
+
+    if show_plot:
+        plot = polyPlot.polyPlot()
+        plot.addPolygon(poly.rSet, color="w")
+        alt = 0.0
+        for subset in sub_poly_info:
+            alt += 1.0
+            plot.addPolygon(subset[0], vz=alt, color=((random.random(),
+                                                       random.random(),
+                                                       random.random()),
+                                                      (1, 1, 1)))
+        plot.showPlot()
+    
     # Convert core-based data into coord-based data.
     coord_based = list()
     count = 0
@@ -223,6 +239,8 @@ def cmdParse():
     parser.add_argument("-uses", action="store_true", dest="sample_use",
                         help="Use generated samples to create MD initial " +
                         "conditions.")
+    parser.add_argument("-show", action="store_true", dest="show_plot",
+                        help="Show the generated points using matplotlib.")
     return parser.parse_args()
 
 
@@ -284,7 +302,7 @@ if __name__ == "__main__":
     if arguments.sample_gen:
         createSample(info["headstr"])
         sys.exit("Generation of samples completed.")
-    sout = generateData(info)
+    sout = generateData(info, arguments.show_plot)
     writeFiles((arguments.output_file_name,
                 arguments.output_repidfile_name), sout)
     if arguments.sample_use:

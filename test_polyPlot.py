@@ -10,14 +10,14 @@ class TestModule(unittest.TestCase):
     """Unittest extend."""
     def setUp(self):
         "setup initial conditions for test."
-        size = 20
+        size = 10
         sets = dict()  
         xarray = np.linspace(0.0, 10.0, size)
         yarray = np.linspace(2.0, 20.0, size)
         for i in range(size):
-            sets[i] = (xarray[i], yarray[i])
+            sets[i+1] = (xarray[i], yarray[i])
         self.test = polyPlot.polyPlot()
-        self.test.addPolygon(sets, vz = 1.0)
+        self.test.addPolygon(sets, vz=1.0, color="g")
 
     def tearDown(self):
         "destructor for test."
