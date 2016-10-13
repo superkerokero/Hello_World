@@ -69,10 +69,10 @@ def argsGen(info, i):
     "Generate arguments used by bot."
     args = list()
     args.append("mpiexec")
-    args.append("-n")
-    args.append(str(info["n_core"]))
     args.append("-machinefile")
     args.append(info["machinefile"])
+    args.append("-n")
+    args.append(str(info["n_core"]))
     args.append(info["exec_path"])
     args.append(info["head_nml"] + str(i))
     return args
