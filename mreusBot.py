@@ -12,6 +12,7 @@ import json
 import sys
 import os
 import argparse
+import time
 
 
 
@@ -21,8 +22,6 @@ def writeExample(input_file_name):
     fi["exec_path"] = "/home/wanglj/FreeFlex/FreeFlex.exe"
     fi["work_path"] = "/home/wanglj/multi_reus/multi1"
     fi["n_core"] = 112
-    fi["start_sim"] = 1
-    fi["n_sim"] = 4
     fi["machinefile"] = "mpd.hosts"
     fi["head_nml"] = "mreusnml_"
     # Using "pretty printing" format.
@@ -62,6 +61,12 @@ def cmdParse():
     parser.add_argument("-i", nargs="?", dest="input_file_name",
                         default="files/botconfig.json", metavar="filename",
                         help="input file name.")
+    parser.add_argument("-s", nargs="?", dest="n_start",
+                        default=1, metavar="number",
+                        help="Number of starting set.")
+    parser.add_argument("-e", nargs="?", dest="n_end",
+                        default=4, metavar="number",
+                        help="Number of the last set..")
     return parser.parse_args()
 
 
@@ -78,14 +83,18 @@ def argsGen(info, i):
     return args
 
 
-def startBot(info):
-    "Start bot using subprocess32.call."
+def startBot(info, args):
+    "Start bot using subprocess.call."
     os.chdir(info["work_path"])
-    for i in range(info["start_sim"], info["n_sim"]+1):
+    for i in range(args.n_start, args.n_end+1):
+        print "Round {0} started.".format(i)
         args = argsGen(info, i)
         ret =  sp.call(args, shell=False)
         if ret == 1:
             print "Sim{0} finished successfully!".format(i)
+            print "Sleep for 100s to avoid mpiexec deadlock."
+            time.sleep(100)
+            print "Wake up, starting round {0}!".format(i+1)
         else:
             sys.exit("Sim{0} finished with return code {1}".format(i, ret))
 
@@ -98,4 +107,4 @@ if __name__ == "__main__":
         sys.exit("Generated example file name: " +
                  arguments.input_file_name)
     info = readFile(arguments.input_file_name)
-    startBot(info)
+    startBot(info, arguments)
