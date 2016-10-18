@@ -7,8 +7,9 @@ end=""
 workdir="/home/wanglj/multi_reus/multi1"
 machinefile="mpd.hosts"
 head_nml="namelist"
+exec="/home/wanglj/FreeFlex/FreeFlex.exe"
 n_core="112"
-stime=5
+stime=""
 
 if [ ! -z $1 ]; then
   start=$1
@@ -20,6 +21,11 @@ if [ ! -z $2 ]; then
 else
   end="4"
 fi
+if [ ! -z $3 ]; then
+  stime=$3
+else
+  stime="10"
+fi
 
 # cd to working directory.
 cd $workdir
@@ -30,14 +36,18 @@ for i in $(seq $start $end);
 do
   f_nml=$head_nml$i
   f_log="./0000/log"$i
-  if [ -f f_log ]; then
+  if [ -f $f_log ]; then
     echo $f_log "exists. Skip to next round."
   else
     echo Sleep for $stime secs.
     sleep ${stime}s
     echo Starting round $i.
     args="mpiexec -machinefile "$machinefile" -n "$n_core
-    args=$args" FreeFlex.exe "$f_nml
+    args=$args" "$exec" "$f_nml
+    echo "Performing the following command."
     echo $args
+    $args
   fi
 done
+
+echo "All batch tasks completed!"
