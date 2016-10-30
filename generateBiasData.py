@@ -29,8 +29,14 @@ def writeExample(input_file_name):
     fi["headstr"] = "newsample"
     fi["struct_dir"] = os.getcwd() + "/files/structs"
     fi["max_ncore"] = 100
+    fi["param_json"] = "param.json"
     # Using "pretty printing" format.
-    sinput = json.dumps(fi, sort_keys=True, indent=4)
+    writeJson(fi, input_file_name)
+
+def writeJson(data, input_file_name):
+    "Write python data object into a json file."
+    # Using "pretty printing" format.
+    sinput = json.dumps(data, sort_keys=True, indent=4)
     try:
         os.mkdir("files")
         print "Created directory \'files\'."
@@ -38,13 +44,13 @@ def writeExample(input_file_name):
         print "Directory \'files\' already exists."
     try:
         if os.path.exists(input_file_name):
+            print "{0} already exists, overwriting...".format(input_file_name)
             os.remove(input_file_name)
         with open(input_file_name, "w+") as wfile:
             wfile.write(sinput)
     except IOError:
         print "writeExample: Error during open wfile." + \
-              "Check if the file already exists." + input_file_name
-
+              "Check if the file already exists." + input_file_name   
 
 def createSample(filename):
     "Create sample files for testing."
@@ -155,13 +161,16 @@ def countPointPairs(iSet, intervals):
     return count/2
 
         
-def generateData(info, show_plot):
+def generateData(info, show_plot, param_json):
     "Generate data based on given info."
     # First create the total poly.
     poly = polygonGen.Polygon(info["initial_polygon"],
                               info["intervals"])
     print "The initial_polygon has {0} points in total.".format(len(poly.rSet))
 
+    # Output param_json file.
+    writeJson(poly.rSet, param_json)
+    
     # Create the coord-based data containing all sets in the main poly.
     coord_total = poly.core2coord(poly.rSet)
     strout = "&biasdata\n"
@@ -302,7 +311,7 @@ if __name__ == "__main__":
     if arguments.sample_gen:
         createSample(info["headstr"])
         sys.exit("Generation of samples completed.")
-    sout = generateData(info, arguments.show_plot)
+    sout = generateData(info, arguments.show_plot, info["param_json"])
     writeFiles((arguments.output_file_name,
                 arguments.output_repidfile_name), sout)
     if arguments.sample_use:

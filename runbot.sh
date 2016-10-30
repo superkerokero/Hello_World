@@ -8,6 +8,10 @@ workdir="/home/wanglj/multi_reus/multi1"
 machinefile="mpd.hosts"
 head_nml="namelist"
 exec="/home/wanglj/FreeFlex/FreeFlex.exe"
+prepy="/home/wanglj/Python-I-O-experiment.git/dynamicPrepare.py"
+param_json="param.json"
+repid="repid"
+struct="lastms"
 n_core="112"
 stime=""
 
@@ -42,6 +46,15 @@ do
     echo Sleep for $stime secs.
     sleep ${stime}s
     echo Starting round $i.
+    echo Prepare the structs for this round.
+    if [$i>$start]; then
+	args="python "${prepy}" -j "${param_json}" -r "${repid}" -s "${struct}" -n "${i}
+	echo "Performing the following command."
+	echo $args
+	$args
+    else
+	echo Skipping preparation for the first round.
+    fi
     args="mpiexec -machinefile "$machinefile" -n "$n_core
     args=$args" "$exec" "$f_nml
     echo "Performing the following command."
