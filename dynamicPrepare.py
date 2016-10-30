@@ -10,7 +10,7 @@ import sys
 import argparse
 import shutil
 
-def processData(param_json, repid_file, struct_file, num):
+def processData(param_json, repid_file, last_file, struct_file, num):
     "Read data from input json files and repid files."
     # Open a param_json file to read in point parameters.
     previous = repid_file + str(num-1)
@@ -29,10 +29,11 @@ def processData(param_json, repid_file, struct_file, num):
                 temp = d
                 index[k1] = k2
     # Copy files based on index.
+    print index
     cwd = os.getcwd()
     for key, value in index.iteritems():
         src = cwd + "/" + str(value-1).zfill(4) + "/" + \
-                   struct_file + str(num-1)
+                   last_file + str(num-1)
         dst = cwd + "/" + str(key-1).zfill(4) + "/" + \
                  struct_file + str(num)
         try:
@@ -59,7 +60,7 @@ def readRepid(filename):
         with open(filename, "rU") as funit:
             for string in funit:
                 raw = string.split()
-                repid[int(raw[0])] = int(raw[1])
+                repid[int(raw[0])] = raw[1]
     except IOError:
         sys.exit("readFile: Error during open file \'" + filename +
                  "\'. Check if the file exists.")
@@ -75,8 +76,11 @@ def cmdParse():
                         default="repid", metavar="filename",
                         help="input repid file name(without numbering) to be used.")
     parser.add_argument("-s", nargs="?", dest="st",
-                        default="files/repid", metavar="filename",
-                        help="output file name for replica id list.")
+                        default="struct_", metavar="filename",
+                        help="Struct file name to be output.")
+    parser.add_argument("-l", nargs="?", dest="last",
+                        default="lastms", metavar="filename",
+                        help="Reference struct file(original).")
     parser.add_argument("-n", nargs="?", type=int, dest="num",
                         default=2, metavar="N",
                         help="Number of the round to be started.")
@@ -86,5 +90,5 @@ def cmdParse():
 # Perform following actions if the script is run directly.
 if __name__ == "__main__":
     args = cmdParse()
-    processData(args.pj, args.rep, args.st, args.num)
+    processData(args.pj, args.rep, args.last, args.st, args.num)
     print "Succesfully processed structs for the next round! {0}".format(args.num)

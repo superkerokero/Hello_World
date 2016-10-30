@@ -11,7 +11,8 @@ exec="/home/wanglj/FreeFlex/FreeFlex.exe"
 prepy="/home/wanglj/Python-I-O-experiment.git/dynamicPrepare.py"
 param_json="param.json"
 repid="repid"
-struct="lastms"
+last="lastms"
+struct="struct_"
 n_core="112"
 stime=""
 
@@ -48,7 +49,7 @@ do
     echo Starting round $i.
     echo Prepare the structs for this round.
     if [$i>$start]; then
-	args="python "${prepy}" -j "${param_json}" -r "${repid}" -s "${struct}" -n "${i}
+	args="python "${prepy}" -j "${param_json}" -r "${repid}" -l "${last}" -s "${struct}" -n "${i}
 	echo "Performing the following command."
 	echo $args
 	$args
