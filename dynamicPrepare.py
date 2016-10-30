@@ -29,7 +29,6 @@ def processData(param_json, repid_file, last_file, struct_file, num):
                 temp = d
                 index[k1] = k2
     # Copy files based on index.
-    print index
     cwd = os.getcwd()
     for key, value in index.iteritems():
         src = cwd + "/" + str(value-1).zfill(4) + "/" + \

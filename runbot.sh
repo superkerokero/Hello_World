@@ -4,16 +4,16 @@
 # first retrieve command line arguments.
 start=""
 end=""
-workdir="/home/wanglj/multi_reus/multi1"
+workdir="/home/wanglj/multi_reus/dyna0_structs"
 machinefile="mpd.hosts"
 head_nml="namelist"
 exec="/home/wanglj/FreeFlex/FreeFlex.exe"
-prepy="/home/wanglj/Python-I-O-experiment.git/dynamicPrepare.py"
-param_json="param.json"
-repid="repid"
+prepy="/home/wanglj/Python-I-O-experiment/dynamicPrepare.py"
+param_json="param_dyna0.json"
+repid="repid_dyna0"
 last="lastms"
 struct="struct_"
-n_core="112"
+n_core="224"
 stime=""
 
 if [ ! -z $1 ]; then
@@ -48,7 +48,7 @@ do
     sleep ${stime}s
     echo Starting round $i.
     echo Prepare the structs for this round.
-    if [$i>$start]; then
+    if [ $i > $start ]; then
 	args="python "${prepy}" -j "${param_json}" -r "${repid}" -l "${last}" -s "${struct}" -n "${i}
 	echo "Performing the following command."
 	echo $args
