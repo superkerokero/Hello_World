@@ -281,23 +281,37 @@ def copySamples(coord_based, samples, workdir, coord_id=0):
         count += 1
         for key, value in data[coord_id].iteritems():
             if str(key) in samples:
-                for core in value:
-                    newdir = workdir + "/" + str(core-1).zfill(4) + "/"
-                    try:
-                        os.mkdir(newdir)
-                    except OSError:
-                        pass
-                    try:
-                        shutil.copyfile(samples[str(key)], newdir + "struct_" + \
-                                        str(count))
-                    except shutil.Error:
-                        sys.exit("Target and source are the same!")
-                    except IOError:
-                        sys.exit("The destination is not writtable!")
+                copyToWorkdir(workdir, value, str(key), count)
             else:
-                sys.exit("The file with value \'" + str(key) + \
-                         "\' wasn't found. Check the sample folder.")
+                print "The file with value \'" + str(key) + \
+                         "\' wasn't found. Check the sample folder."
+                print "Try to find the nearest match of " + str(key) + "."
+                pdelta = sys.float_info.max
+                for ksam in samples:
+                    delta = abs(key - float(ksam))
+                    if pdelta > delta:
+                        pdelta = delta
+                        thiskey = ksam
+                print "The nearest key found for " + str(key) + " was " + \
+                    thiskey + "."
+                copyToWorkdir(workdir, value, thiskey, count)
     print "Successfully copied sample files."
+
+def copyToWorkdir(workdir, value, key, count):
+    "Copy [key] struct file into folders contained in workdir/value(s)."
+    for core in value:
+        newdir = workdir + "/" + str(core-1).zfill(4) + "/"
+        try:
+            os.mkdir(newdir)
+        except OSError:
+            pass
+        try:
+            shutil.copyfile(samples[key], newdir + "struct_" + \
+                            str(count))
+        except shutil.Error:
+            sys.exit("Target and source are the same!")
+        except IOError:
+            sys.exit("The destination is not writtable!")
 
 
 # Perform following operations if the script is run directly.

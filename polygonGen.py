@@ -9,6 +9,7 @@ class Polygon(object):
     def __init__(self, init_points, intervals):
         "Constructor of the class."
         self.points = init_points
+        self.intervals = intervals
         self.rSet = self.generateSet(self.points, intervals)
         
     @staticmethod
@@ -164,10 +165,43 @@ class Polygon(object):
                     print "Reached max_nSet."
                     print "Given set number: %d" % max_nSet
                     print "Last point in the set: {0}".format(subSet[nSet])
-                    break
-        if nSet != max_nSet:
+                    return (subSet, subSetID)
+        # extend the polygon when there are remaining cores to be used.
+        temp = [polygon, max_nSet, nSet, subSet, subSetID]
+        for i in range(5):
+            if temp[2] != max_nSet:
+                temp = self.extendSubSet(i, *temp)
+            else:
+                break
+        if temp[2] != max_nSet:
             print "Given polygon was filled before reaching given set "+ \
-                "number."
+                "number after 5 extends."
             print "Given set number: %d" % max_nSet
-            print "Generated set number: %d" % nSet
-        return (subSet, subSetID)
+            print "Generated set number: %d" % temp[2]
+            print "Last point in the set: {0}".format(temp[3][temp[2]])
+        return (temp[3], temp[4])
+
+    def extendSubSet(self, num, polygon, max_nSet, nSet, subSet, subSetID):
+        "Extend subpoly from bottom left to contain more cores."
+        print "Given polygon was filled before reaching given set "+ \
+            "number."
+        print "Given set number: %d" % max_nSet
+        print "Generated set number: %d" % nSet
+        print "#{0} Extending from bottomleft to fill in remaining cores...".format(num)
+        minX = min(polygon, key = lambda x: x[0])[0]
+        maxX = max(polygon, key = lambda x: x[0])[0]
+        minY = min(polygon, key = lambda x: x[1])[1]
+        newY = minY - self.intervals[1]
+        new_polygon = [(minX, newY), (minX, minY), (maxX, minY), (maxX, newY)]
+        for key in self.rSet:
+            if self.rayCastingInside(new_polygon, self.rSet[key]):
+                nSet += 1
+                print "nSet: {0}".format(nSet)
+                subSetID[nSet] = key
+                subSet[nSet] = self.rSet[key]
+                if nSet == max_nSet:
+                    print "Reached max_nSet(Ex.{0}).".format(num)
+                    print "Given set number: %d" % max_nSet
+                    print "Last point in the set: {0}".format(subSet[nSet])
+                    break
+        return [new_polygon, max_nSet, nSet, subSet, subSetID]
