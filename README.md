@@ -1,5 +1,10 @@
 # Building polygons and fill with uniformly distributed points.
 
+[![Build Status](https://travis-ci.org/superkerokero/Python-I-O-experiment.svg?branch=master)](https://travis-ci.org/superkerokero/Python-I-O-experiment)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Maintainability](https://api.codeclimate.com/v1/badges/93ab57ce5486309c3eed/maintainability)](https://codeclimate.com/github/superkerokero/Python-I-O-experiment/maintainability)
+<a href="https://codeclimate.com/github/superkerokero/Python-I-O-experiment/test_coverage"><img src="https://api.codeclimate.com/v1/badges/93ab57ce5486309c3eed/test_coverage" /></a>
+
 This script takes several command line arguments and an input json file to generate a couple of biasdata files for later use. And by preparing the initial structure files named like "headstrXXX"(where XXX are actual value of coordinates in this structure file), you can prepare initial configurations for large parallel simulations(e.g. REMD).
 
 
