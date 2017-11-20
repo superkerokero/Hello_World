@@ -1,0 +1,7 @@
+  language: python
+  python:
+    - 3.6
+  script:
+    - python test_polygonGen.py
+    - python test_polyPlot.py
+    - python test_trapezoidGen.py
